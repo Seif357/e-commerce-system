@@ -8,7 +8,13 @@ public class Cart {
     }
 
     public void add(Product product, int quantity){
-        if (product.getQuantity() >= quantity){ // This logic is incorrect
+        int alreadyInCart = 0;
+        for (CartItem item : CartItems) {
+            if (item.getProduct().equals(product)) {
+                alreadyInCart += item.getQuantity();
+            }
+        }
+        if (product.getQuantity() >= alreadyInCart + quantity){
             CartItems.add(new CartItem(product, quantity));
         }
         else {

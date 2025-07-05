@@ -7,7 +7,7 @@ public class ShippableProduct extends Product implements Shippable {
     }
     @Override
     public String getName() {
-        return getName();
+        return super.getName();
     }
     public ShippableProduct(String name, double price, int quantity, double weight) {
         super(name, price, quantity);

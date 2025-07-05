@@ -17,6 +17,9 @@ public class ExpirableShippableProduct extends Product implements Expirable,Ship
     }
     public ExpirableShippableProduct(String name, double price, int quantity, LocalDate expiryDate, double weight) {
         super(name, price, quantity);
+        if (expiryDate == null) {
+            throw new IllegalArgumentException("Expiry date cannot be null");
+        }
         this.expiryDate = expiryDate;
         this.weight = weight;
     }
