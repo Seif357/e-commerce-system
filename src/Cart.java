@@ -2,14 +2,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cart {
-    List<Product> productName=new ArrayList<>();
-int prouductQuantinty;
-void add(Product productName, int prouductQuantinty){
-    if (prouductQuantinty<this.prouductQuantinty){
-        this.prouductQuantinty = prouductQuantinty;
+   private List<CartItem> CartItems = new ArrayList<>();
+    public List<CartItem> getProducts() {
+        return CartItems;
     }
-    else{
-        System.out.println("there is only {this.prouductQuantinty} items from this product avalabile");
-    }
+
+    public void add(Product product, int quantity){
+        if (product.getQuantity() >= quantity){ // This logic is incorrect
+            CartItems.add(new CartItem(product, quantity));
+        }
+        else {
+            System.out.println("Invalid quantity requested for product: " + product.getName());
+        }
+
 }
 }
