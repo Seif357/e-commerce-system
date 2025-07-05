@@ -3,7 +3,7 @@ import java.util.List;
 
 public class Cart {
    private List<CartItem> CartItems = new ArrayList<>();
-    public List<CartItem> getProducts() {
+    public List<CartItem> getCartItems() {
         return CartItems;
     }
 

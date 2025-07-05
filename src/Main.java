@@ -1,10 +1,12 @@
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
         Product Mobile=new Product("Mobile",20.532,1000000000);
         Product Scratch_cards=new Product("Scratch Cards",20.532,1000000000);
-        ExpirableShippableProduct cheese=new ExpirableShippableProduct("cheese",3,3, LocalDate.parse("2018-11-01"),60.32321);
+        ExpirableShippableProduct cheese=new ExpirableShippableProduct("cheese",3,3, LocalDate.parse("2025-11-01"),60.32321);
         ExpirableProduct Biscuits=new ExpirableProduct("Biscuits",231,883,LocalDate.parse("2026-11-01"));
         ShippableProduct TV = new ShippableProduct("TV",33.423121,413,493.42424);
         Cart cart = new Cart();
@@ -20,15 +22,45 @@ public class Main {
     }
     static void checkout(Customer customer, Cart cart)
     {
-        if(cart.getProducts().isEmpty()){
+        if(cart.getCartItems().isEmpty()){
             throw new RuntimeException("cart is empty");
         }
         double Subtotal=0;
-        double Shipping;
-        double Amount;
+        List<CartItem> shippableItems = new ArrayList<>();
+        System.out.println("** Checkout receipt **");
+        for(CartItem Item: cart.getCartItems())
+        {
+            Product product = Item.getProduct();
+            System.out.println(Item.getQuantity() + "x " + product.getName() + "\t" + product.getPrice());
+            if (product instanceof Expirable && ((Expirable) product).isExpired())
+            {
+                throw new RuntimeException("Product is expired: " + product.getName());
+            }
+            if(!product.reduceQuantity(Item.getQuantity()))
+            {
+                throw new RuntimeException("Invalid quantity or out of stock for product: " + product.getName());
+            }
+                if (product instanceof Shippable) {
+                    shippableItems.add(Item);
+                }
+            Subtotal+=product.getPrice()*Item.getQuantity();
+        }
+        double Shipping= ShippingService(shippableItems);
+        double Amount=Subtotal+Shipping;
+        System.out.println("----------------------");
+        System.out.println("Subtotal: "+Subtotal);
+        System.out.println("Shipping: "+Shipping);
+        System.out.println("Amount: "+Amount);
+        if (!customer.deductBalance(Amount)) {
+            throw new RuntimeException("Insufficient balance " + customer.getBalance() + " to pay Amount " + Amount);
+        }
+        System.out.println("Your balance after payment: "+customer.getBalance());
+    }
+    static double ShippingService(List<CartItem> shippableItems)
+    {
         double TotalWeight=0;
         System.out.println("** Shipment notice **");
-        for(CartItem Item: cart.getProducts())
+        for(CartItem Item: shippableItems)
         {
             if (Item.getProduct() instanceof Shippable) {
                 System.out.print(Item.getQuantity()+"x "+Item.getProduct().getName()+"\t"+((Shippable) Item.getProduct()).getWeight()+"g\n");
@@ -36,21 +68,6 @@ public class Main {
             }
         }
         System.out.println("Total package weight "+TotalWeight/1000+"kg");
-        Shipping=(TotalWeight/1000)*27.27;
-        System.out.println("** Checkout receipt **");
-        for(CartItem Item: cart.getProducts())
-        {
-            System.out.print(Item.getQuantity()+"x "+Item.getProduct().getName()+"\t"+Item.getProduct().getPrice()+"\n");
-            Subtotal+=Item.getProduct().getPrice()*Item.getQuantity();
-        }
-        Amount=Subtotal+Shipping;
-        System.out.println("----------------------");
-        System.out.println("Subtotal: "+Subtotal);
-        System.out.println("Shipping: "+Shipping);
-        System.out.println("Amount: "+Amount);
-
-        if (!customer.deductBalance(Amount)) {
-            throw new RuntimeException("Insufficient balance " + customer.getBalance() + " to pay Amount " + Amount);
-        }
+        return (TotalWeight/1000)*27.27;
     }
 }
